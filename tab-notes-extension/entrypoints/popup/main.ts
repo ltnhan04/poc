@@ -1,9 +1,7 @@
+import { storage } from "#imports";
 import "./styles.css";
-
-type NoteData = { note: string; createdAt: string; updatedAt: string };
-type NoteStorages = {
-  [key: string]: NoteData;
-};
+import { getPageKey } from "@/utils";
+import { NoteData, NoteStorages } from "@/@types";
 
 document.querySelector("#app")!.innerHTML = `
     <div class="sticky-note">
@@ -12,6 +10,9 @@ document.querySelector("#app")!.innerHTML = `
         </form>
     </div>
 `;
+
+const noteStorages: NoteStorages =
+  (await storage.getItem("sync:noteStorages")) ?? {};
 
 const noteText = document.getElementById(
   "note-text",
@@ -30,15 +31,6 @@ if (noteText) {
     { once: true },
   );
 
-  const getPageKey = (url: string) => {
-    const urlObj = new URL(url);
-    return `${urlObj.hostname}${urlObj.pathname}`;
-  };
-
-  const storedNoteStorages = await browser.storage.sync.get("noteStorages");
-  const noteStorages: NoteStorages =
-    (storedNoteStorages.noteStorages as NoteStorages | undefined) ?? {};
-
   noteText.addEventListener("keyup", async () => {
     const [tab] = await browser.tabs.query({
       active: true,
@@ -53,8 +45,20 @@ if (noteText) {
 
     noteStorages[pageKey] = noteData;
 
-    browser.storage.sync.set({ noteStorages }, () => {
-      console.log("Value is set");
-    });
+    await storage.setItem("sync:noteStorages", noteStorages);
   });
 }
+
+const loadingExistingData = async () => {
+  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+  if (tab.url) {
+    const pageKey = getPageKey(tab.url);
+
+    const storedNoteStorages = noteStorages[pageKey];
+    if (storedNoteStorages) {
+      noteText!.value = storedNoteStorages.note;
+    }
+  }
+};
+
+loadingExistingData();
