@@ -1,6 +1,6 @@
 import { storage } from "#imports";
 import "./styles.css";
-import { getPageKey } from "@/utils";
+import { getPageKey, changeIcon } from "@/utils";
 import { NoteData, NoteStorages } from "@/@types";
 
 document.querySelector("#app")!.innerHTML = `
@@ -36,16 +36,22 @@ if (noteText) {
       active: true,
       currentWindow: true,
     });
-    const pageKey = getPageKey(tab.url as string);
-    const noteData: NoteData = {
-      note: noteText.value,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    if (tab.url && tab.id) {
+      const pageKey = getPageKey(tab.url);
+      if (noteText.value.trim() === "") {
+        delete noteStorages[pageKey];
+      } else {
+        const noteData: NoteData = {
+          note: noteText.value,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
 
-    noteStorages[pageKey] = noteData;
-
-    await storage.setItem("sync:noteStorages", noteStorages);
+        noteStorages[pageKey] = noteData;
+      }
+      await storage.setItem("sync:noteStorages", noteStorages);
+      await changeIcon(tab.id);
+    }
   });
 }
 

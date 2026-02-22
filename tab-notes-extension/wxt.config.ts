@@ -5,5 +5,6 @@ export default defineConfig({
   manifest: {
     permissions: ["storage", "tabs"],
     name: "Tab Notes",
+    version: "1.0.0",
   },
 });

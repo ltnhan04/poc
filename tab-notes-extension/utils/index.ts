@@ -1,3 +1,2 @@
-import { getPageKey } from "./getPageKey";
-
-export { getPageKey };
+export * from "./getPageKey";
+export * from "./changeIcon"
