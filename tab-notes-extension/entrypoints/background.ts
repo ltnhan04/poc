@@ -1,13 +1,16 @@
 import { changeIcon } from "@/utils";
+import { sendNoteUpdateMessage } from "@/utils/sendNoteUpdateMessage";
 
 export default defineBackground(() => {
   browser.tabs.onActivated.addListener(async (activeTab) => {
     await changeIcon(activeTab.tabId);
+    sendNoteUpdateMessage(activeTab.tabId);
   });
 
   browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (tab.active && changeInfo.url) {
       await changeIcon(tabId);
+      sendNoteUpdateMessage(tabId);
     }
   });
 
@@ -18,6 +21,7 @@ export default defineBackground(() => {
     });
     if (tab.id) {
       await changeIcon(tab.id);
+      sendNoteUpdateMessage(tab.id);
     }
   });
 });
