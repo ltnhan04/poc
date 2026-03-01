@@ -1,12 +1,12 @@
-import { storage } from "#imports";
 import { NoteStorages } from "@/@types";
 import { getPageKey } from "./getPageKey";
 
 export const sendNoteUpdateMessage = async (tabId: number) => {
   const tab = await browser.tabs.get(tabId);
-  const noteStorages: NoteStorages =
-    (await storage.getItem("sync:noteStorages")) ?? {};
+
   if (tab.url) {
+    const noteStorages: NoteStorages =
+      (await storage.getItem("sync:noteStorages")) ?? {};
     const key = getPageKey(tab.url);
     const storedNoteStorages = noteStorages[key];
 
@@ -18,6 +18,6 @@ export const sendNoteUpdateMessage = async (tabId: number) => {
       },
     };
 
-    browser.tabs.sendMessage(tabId, message);
+    await browser.tabs.sendMessage(tabId, message);
   }
 };

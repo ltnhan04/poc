@@ -1,6 +1,7 @@
 import { storage } from "#imports";
 import "./styles.css";
 import { getPageKey, changeIcon } from "@/utils";
+import { sendNoteUpdateMessage } from "@/utils/sendNoteUpdateMessage";
 import { NoteData, NoteStorages } from "@/@types";
 
 document.querySelector("#app")!.innerHTML = `
@@ -50,7 +51,8 @@ if (noteText) {
         noteStorages[pageKey] = noteData;
       }
       await storage.setItem("sync:noteStorages", noteStorages);
-      await changeIcon(tab.id);
+      changeIcon(tab.id);
+      sendNoteUpdateMessage(tab.id);
     }
   });
 }
